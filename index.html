@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Endpoint-Proximal Stochastic Steering for Robotic Manipulation with Flow-Matching Policies · EPSS</title>
+  <meta name="description"
+    content="Endpoint-Proximal Stochastic Steering for Robotic Manipulation with Flow-Matching Policies. Training-free inference-time guidance with adaptive Huber proximal updates and pCN re-noising.">
+  <link rel="canonical" href="https://sitri-x.github.io/epss-web/">
+  <meta property="og:title"
+    content="Endpoint-Proximal Stochastic Steering for Robotic Manipulation with Flow-Matching Policies">
+  <meta property="og:description"
+    content="Overview of EPSS. Given an external action reference, EPSS guides the sampling process of a pretrained flow policy to generate an action sequence for robot execution.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sitri-x.github.io/epss-web/">
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%23151c22'/%3E%3Cpath d='M12 11h17M12 20h13M12 29h17M12 11v18' fill='none' stroke='%23e48756' stroke-width='4'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script src="media-data.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <main id="main">
+    <section class="paper-header">
+      <h1><span>Endpoint-Proximal Stochastic Steering</span><br><span>for Robotic Manipulation with Flow-Matching
+          Policies</span></h1>
+      <div class="paper-links"><a class="pill" href="assets/epss-paper.pdf">Paper <small>PDF</small></a><button
+          class="pill code-pending" type="button" disabled>Code <small>Coming soon</small></button></div>
+      <nav class="section-nav" aria-label="Page sections"><a href="#abstract">Abstract</a><a
+          href="#overview">Overview</a><a href="#steering-mechanisms">Steering Mechanisms</a><a
+          href="#simulation">Simulation</a><a href="#real-world">Real Robot</a><a href="#results">Results</a></nav>
+    </section>
+    <section class="tinted" id="abstract">
+      <div class="container section reading">
+        <h2>Abstract</h2>
+        <p>Flow-based visuomotor policies have emerged as a promising paradigm for modeling multimodal robot action
+          distributions.
+          However, real-world deployments often introduce task-specific constraints and user preferences that are not
+          considered
+          during training, while collecting additional demonstrations or fine-tuning pretrained policies can be costly.
+          To address
+          this need, we propose Endpoint-Proximal Stochastic Steering (EPSS), a training-free method for guiding
+          pretrained
+          flow-based visuomotor policies at inference time. At each sampling step, EPSS estimates the
+          clean action
+          and noise endpoints from the pretrained policy, enabling guidance to be applied directly in the predicted
+          action space.
+          Building on this representation, an adaptive proximal update based on the Huber loss balances alignment with
+          target
+          actions and the pretrained policy's predictions. Furthermore, pCN re-noising refreshes the noise endpoint to
+          support
+          exploration of alternative action candidates. We evaluate EPSS on a range of challenging simulated and
+          real-world tasks.
+          Experimental results demonstrate that EPSS consistently outperforms existing inference-time steering methods
+          and
+          improves task success rates across multiple tasks while alignment with target actions.</p>
+      </div>
+    </section>
+    <section class="section container" id="overview">
+      <h2>Overview</h2>
+      <figure>
+        <a class="overview-diagram" href="assets/overview.png?v=20261027"
+          aria-label="View the full EPSS method diagram"><img src="assets/overview.png?v=20261027"
+            alt="EPSS overview: biased initialization, endpoint estimation, adaptive Huber proximal steering, and pCN re-noising"
+            loading="eager"></a>
+        <figcaption>Overview of EPSS. Given an external action reference, EPSS guides the sampling process of a
+          pretrained flow policy to generate an action sequence for robot execution.</figcaption>
+      </figure>
+    </section>
+    <section class="container section" id="steering-mechanisms">
+      <h2>Steering Mechanisms</h2>
+      <figure class="result-figure"><img src="assets/steering_mechanisms.png" loading="lazy"
+          alt="Comparison of biased initialization, ITPS gradient guidance, ITPS stochastic sampling, and EPSS endpoint refinement">
+        <figcaption>BI biases initialization, but its guidance may weaken during sampling. ITPS (GD) applies guidance
+          gradients that can move actions away from the learned distribution. ITPS (SS) uses repeated Langevin updates
+          at additional
+          computational cost. EPSS combines proximal action refinement and pCN re-noising to guide sampling while
+          retaining
+          the pretrained policy's influence.</figcaption>
+      </figure>
+    </section>
+    <section class="container section" id="simulation" data-video-group="simulation">
+      <div class="section-title">
+        <div>
+          <p class="kicker">SIX SIMULATED TASKS</p>
+          <h2>Simulation Rollouts</h2>
+        </div><span class="subtle-label"></span>
+      </div>
+      <div class="task-picker" role="group" aria-label="Simulation task"></div>
+      <div class="simulation-heading">
+        <div>
+          <div class="task-title-row">
+            <h3 id="task-title">Maze2D</h3><span id="task-target" class="task-target" hidden></span>
+          </div>
+          <p id="task-description">Navigate around obstacles while following a reference trajectory.</p>
+        </div>
+      </div>
+      <div class="video-toolbar">
+        <div class="play-controls"><button type="button" data-action="play">Play all</button><button type="button"
+            data-action="pause">Pause all</button><button type="button" data-action="restart">Replay all</button></div>
+        <label>Speed <select data-speed>
+            <option value="0.5">0.5×</option>
+            <option value="1" selected>1×</option>
+            <option value="2">2×</option>
+          </select></label>
+      </div>
+      <div class="simulation-grid" id="simulation-videos"></div>
+      <p class="media-status" aria-live="polite"></p>
+    </section>
+    <section class="tinted" id="real-world">
+      <div class="container section" data-video-group="real">
+        <div class="section-title">
+          <div>
+            <p class="kicker">PHYSICAL ROBOT</p>
+            <h2>Real Robot: Cup Place</h2>
+          </div><span class="badge">EPSS</span>
+        </div>
+        <p class="section-intro">Each video compares unguided and EPSS-guided
+          predictions in the same scene, then shows the guided execution.</p>
+        <div class="real-tabs" role="tablist" aria-label="Target cup color">
+          <button type="button" role="tab" id="real-tab-blue" data-real-color="blue" aria-controls="real-videos"
+            aria-selected="true" tabindex="0"><span class="color-mark blue"></span>Blue cup</button>
+          <button type="button" role="tab" id="real-tab-pink" data-real-color="pink" aria-controls="real-videos"
+            aria-selected="false" tabindex="-1"><span class="color-mark pink"></span>Pink cup</button>
+          <button type="button" role="tab" id="real-tab-yellow" data-real-color="yellow" aria-controls="real-videos"
+            aria-selected="false" tabindex="-1"><span class="color-mark yellow"></span>Yellow cup</button>
+        </div>
+        <div class="video-toolbar">
+          <div class="play-controls"><button type="button" data-action="play">Play all</button><button type="button"
+              data-action="pause">Pause all</button><button type="button" data-action="restart">Replay all</button>
+          </div>
+          <div class="view-controls"><label>Speed <select data-speed>
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+              </select></label></div>
+        </div>
+        <div class="real-grid" id="real-videos" role="tabpanel" aria-labelledby="real-tab-blue" tabindex="0"></div>
+        <p class="media-status" aria-live="polite"></p>
+      </div>
+    </section>
+    <section class="tinted" id="results">
+      <div class="container section">
+        <h2>Experimental Results</h2>
+        <p class="result-copy">EPSS achieves the highest mean success rate on all five manipulation tasks. </p>
+        <div class="table-scroll" role="region"
+          aria-label="Simulation success rates; scroll horizontally on small screens" tabindex="0">
+          <table>
+            <caption>Simulation task success rate (%)</caption>
+            <thead>
+              <tr>
+                <th scope="col">Method</th>
+                <th scope="col">Push Block</th>
+                <th scope="col">Cup Place</th>
+                <th scope="col">Pick Place</th>
+                <th scope="col">Drawer Open</th>
+                <th scope="col">Peg Insert Side</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Base Policy</th>
+                <td>78.50 ± 8.83</td>
+                <td>72.00 ± 7.52</td>
+                <td>88.00 ± 4.21</td>
+                <td>95.50 ± 4.97</td>
+                <td>19.00 ± 6.58</td>
+              </tr>
+              <tr>
+                <th scope="row">BI</th>
+                <td>82.50 ± 6.77</td>
+                <td>79.00 ± 7.00</td>
+                <td>87.50 ± 5.40</td>
+                <td>93.00 ± 4.83</td>
+                <td>60.00 ± 12.24</td>
+              </tr>
+              <tr>
+                <th scope="row">ITPS (GD)</th>
+                <td>82.50 ± 5.40</td>
+                <td>68.50 ± 8.83</td>
+                <td>85.50 ± 5.99</td>
+                <td>85.50 ± 5.27</td>
+                <td>82.00 ± 2.58</td>
+              </tr>
+              <tr>
+                <th scope="row">ITPS (SS)</th>
+                <td>84.50 ± 8.31</td>
+                <td>83.00 ± 7.89</td>
+                <td>90.00 ± 4.08</td>
+                <td>86.50 ± 5.80</td>
+                <td>79.00 ± 4.59</td>
+              </tr>
+              <tr class="ours">
+                <th scope="row">EPSS</th>
+                <td><strong>91.00 ± 6.58</strong></td>
+                <td><strong>88.00 ± 4.22</strong></td>
+                <td><strong>92.50 ± 3.53</strong></td>
+                <td><strong>97.00 ± 4.21</strong></td>
+                <td><strong>88.50 ± 4.74</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 class="result-subheading">Multimodal guidance</h3>
+        <div class="table-scroll" role="region"
+          aria-label="Multimodal guidance results; scroll horizontally on small screens" tabindex="0">
+          <table>
+            <caption>Multimodal simulation tasks</caption>
+            <thead>
+              <tr>
+                <th scope="col">Method</th>
+                <th scope="col">Maze2D Avg ℓ₂ ↓</th>
+                <th scope="col">Maze2D CR (%) ↓</th>
+                <th scope="col">Push Block Alignment (%) ↑</th>
+                <th scope="col">Cup Place Alignment (%) ↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">BI</th>
+                <td>1.273</td>
+                <td>0.88</td>
+                <td>78.50 ± 6.69</td>
+                <td>85.00 ± 4.08</td>
+              </tr>
+              <tr>
+                <th scope="row">ITPS (GD)</th>
+                <td>1.159</td>
+                <td>15.98</td>
+                <td>96.50 ± 4.11</td>
+                <td>94.50 ± 4.38</td>
+              </tr>
+              <tr>
+                <th scope="row">ITPS (SS)</th>
+                <td><strong>0.844</strong></td>
+                <td>6.06</td>
+                <td>93.50 ± 5.30</td>
+                <td>94.00 ± 4.59</td>
+              </tr>
+              <tr class="ours">
+                <th scope="row">EPSS</th>
+                <td>1.121</td>
+                <td><strong>0.33</strong></td>
+                <td><strong>98.50 ± 3.37</strong></td>
+                <td><strong>98.50 ± 2.42</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="figure-caption">Lower Avg ℓ₂ indicates closer reference following; lower CR indicates fewer
+          collisions.</p>
+        <h3 class="result-subheading">Real-world Cup Place</h3>
+        <div class="table-scroll" role="region" aria-label="Real-world results" tabindex="0">
+          <table>
+            <caption>60 evaluation episodes per method</caption>
+            <thead>
+              <tr>
+                <th scope="col">Method</th>
+                <th scope="col">Success ↑</th>
+                <th scope="col">Alignment (%) ↑</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Base Policy</th>
+                <td>40/60 (66.7%)</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <th scope="row">BI</th>
+                <td>47/60 (78.3%)</td>
+                <td>70.00</td>
+              </tr>
+              <tr class="ours">
+                <th scope="row">EPSS</th>
+                <td><strong>52/60 (86.7%)</strong></td>
+                <td><strong>95.00</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+
+</html>
